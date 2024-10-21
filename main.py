@@ -13,10 +13,24 @@ import re
 from bs4 import BeautifulSoup as bs
 import time
 from datetime import timedelta
+import ntplib
 import math
 import base64
 from progress_bar import progress, TimeFormatter, humanbytes
 from dotenv import load_dotenv
+
+
+def sync_time():
+    try:
+        client = ntplib.NTPClient()
+        response = client.request('pool.ntp.org')
+        print("Time synchronized:", time.ctime(response.tx_time))
+    except Exception as e:
+        print(f"Failed to synchronize time: {e}")
+
+
+sync_time()
+
 
 load_dotenv()
 bot_token = os.environ.get('BOT_TOKEN')
@@ -37,7 +51,6 @@ def start(client, message):
                           "__**Developer :**__ __@JayBeeDev__\n"
                           "__**Language :**__ __Python__\n"
                           "__**Framework :**__ __🔥 Pyrogram__",
-                     parse_mode='md',
                      reply_markup=reply_markup)
 
 
@@ -49,15 +62,13 @@ def help(client, message):
     reply_markup = InlineKeyboardMarkup(kb)
     app.send_message(chat_id=message.from_user.id, text=f"Hello there, I am **TikTok Downloader Bot**.\nI can download any TikTok video from a given link.\n\n"
                                             "__Send me a TikTok video link__",
-                     parse_mode='md',
                      reply_markup=reply_markup)
 
 
 @app.on_message((filters.regex("http://")|filters.regex("https://")) & (filters.regex('tiktok')|filters.regex('douyin')))
 def tiktok_dl(client, message):
     a = app.send_message(chat_id=message.chat.id,
-                         text='__Downloading File to the Server__',
-                         parse_mode='md')
+                         text='__Downloading File to the Server__')
     link = re.findall(r'\bhttps?://.*[(tiktok|douyin)]\S+', message.text)[0]
     link = link.split("?")[0]
 
@@ -118,7 +129,6 @@ def tiktok_dl(client, message):
                           f"**Size :** __{total_size} MB__\n\n"
                           f"__Uploaded by @{BOT_URL}__",
                           file_name=f"{directory}",
-                          parse_mode='md',
                           progress=progress,
                           progress_args=(a, start, title))
         a.delete()
