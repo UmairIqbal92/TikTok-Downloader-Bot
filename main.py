@@ -87,6 +87,7 @@ def tiktok_dl(client, message):
     #Using the default one can stop working any moment 
     
     api = f"https://tiktok-info.p.rapidapi.com/dl/"
+    print(requests.get(api, params=params, headers=headers).json())
     r = requests.get(api, params=params, headers=headers).json()['videoLinks']['download']
     directory = str(round(time.time()))
     filename = str(int(time.time()))+'.mp4'
